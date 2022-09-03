@@ -1,90 +1,95 @@
 import json
-import pickle
+import os
 import re
+import argparse
+from os import walk
 
-import lyricsgenius as genius
+parser = argparse.ArgumentParser(description='Train model')
+parser.add_argument('-indir', '--input-dir',
+                    help='путь к директории, в которой лежит коллекция документов для обучения модели.',
+                    default=None)
+parser.add_argument('-m', '--model', type=str, help='путь к файлу, в который сохраняется модель.',
+                    default="all_grams2.txt")
+
+args = parser.parse_args()
 
 
-def make_data(all_grams, words):
-    with open('artist.json', encoding='utf-8') as f:
-        aux = json.load(f)
-        lyrics = [song['lyrics'] for song in aux['songs']]
-        pos = 0
-        for lyric in lyrics:
-            lyric = lyric[lyric.find('\n'):]
-            lyric = lyric.replace('\n ', '\n')
-            lyric = lyric.replace('\n\n', '\n')
-            lyric = lyric.replace('Embed', ' ')
-            lyric = lyric.replace('Lyrics', ' ')
-            lyric = lyric.replace('—', ' ')
-            lyric = lyric.replace('»', ' ')
-            lyric = lyric.replace('«', ' ')
-            lyric = lyric.replace('–', ' ')
-            lyric = lyric.replace('…', ' ')
-            lyric = lyric.replace('-', ' ')
-            lyric = lyric.replace('?', '')
-            lyric = lyric.replace(',', '')
-            lyric = lyric.replace('.', '')
-            lyric = lyric.replace('!', '')
-            lyric = lyric.replace(':', '')
-            lyric = re.sub("[\(\[].*?[\)\]]", "", lyric)
-            lyric = re.sub(r'[^\w\s]+|[\d]+', r'', lyric).strip()
-            lyric = re.sub(' +', ' ', lyric)
-            lyric = lyric.strip()
-            lyric = lyric.lower()
-            lyric = lyric.replace('\n', ' ')
-            lyric = lyric.replace('\u2005', ' ')
-            lyrics[pos] = lyric
-            pos += 1
-        for lyric in lyrics:
-            lyric = re.sub(' +', ' ', lyric)
-            arr = lyric.split(' ')
-            for i in range(len(arr)):
-                if i - 2 >= 0:
-                    tmp = arr[i - 2] + " " + arr[i - 1] + " " + arr[i]
-                    if tmp in all_grams:
-                        all_grams[tmp] += 1
-                    else:
-                        all_grams[tmp] = 1
-                if i - 1 >= 0:
-                    tmp = arr[i - 1] + " " + arr[i]
-                    if tmp in all_grams:
-                        all_grams[tmp] += 1
-                    else:
-                        all_grams[tmp] = 1
-                if arr[i] in all_grams:
-                    all_grams[arr[i]] += 1
+def make_data(texts):
+    all_grams = {}
+    pos = 0
+    for text in texts:
+        text = text[text.find('\n'):]
+        text = text.replace('\n ', '\n')
+        text = text.replace('\n\n', '\n')
+        text = text.replace('Embed', ' ')
+        text = text.replace('Lyrics', ' ')
+        text = text.replace('—', ' ')
+        text = text.replace('»', ' ')
+        text = text.replace('«', ' ')
+        text = text.replace('–', ' ')
+        text = text.replace('…', ' ')
+        text = text.replace('-', ' ')
+        text = text.replace('?', '')
+        text = text.replace(',', '')
+        text = text.replace('.', '')
+        text = text.replace('!', '')
+        text = text.replace(':', '')
+        text = re.sub("[\(\[].*?[\)\]]", "", text)
+        text = re.sub(r'[^\w\s]+|[\d]+', r'', text).strip()
+        text = re.sub(' +', ' ', text)
+        text = text.strip()
+        text = text.lower()
+        text = text.replace('\n', ' ')
+        text = text.replace('\u2005', ' ')
+        texts[pos] = text
+        pos += 1
+    for text in texts:
+        text = re.sub(' +', ' ', text)
+        arr = text.split(' ')
+        for i in range(len(arr)):
+            if i - 2 >= 0:
+                tmp = arr[i - 2] + " " + arr[i - 1] + " " + arr[i]
+                if tmp in all_grams:
+                    all_grams[tmp] += 1
                 else:
-                    all_grams[arr[i]] = 1
-                    words.append(arr[i])
-    return all_grams, words
+                    all_grams[tmp] = 1
+            if i - 1 >= 0:
+                tmp = arr[i - 1] + " " + arr[i]
+                if tmp in all_grams:
+                    all_grams[tmp] += 1
+                else:
+                    all_grams[tmp] = 1
+            if arr[i] in all_grams:
+                all_grams[arr[i]] += 1
+            else:
+                all_grams[arr[i]] = 1
 
-
-def download_dataset(artist, all_grams, words):  # calling the API
-    api = genius.Genius('OtmDtw5-YP0nx3eBs6lXVK23Cn0-gzM_FcodeRol2O-_j58w4JRHd801WF_8lsmS')
-    artist = api.search_artist(artist, get_full_info=False)
-    artist.save_lyrics(filename='artist', overwrite=True, verbose=True)
-    return make_data(all_grams, words)
-
-
-def choose_artist():
-    with open('single.txt', 'r', encoding='utf-8') as file:
-        all_grams = json.load(file)
-    with open("words.txt", "rb") as file:
-        words = pickle.load(file)
-    artists = ["Слава КПСС", "Pyrokinesis", "Aikko", "Lil krystalll", "oxxxymiron", "ATL", "Og buda", "Loqiemean",
-               "163ONMYNECK", "katanacss", "playingtheangel", "booker", "монеточка", "три дня дождя", "MORGENSHTERN",
-               "NOIZE MC", "Макс корж", "нексюша", "дора", "boulevard depo", "король и шут", "мэйби бэйби",
-               "тима белорусских", "bushido zho", "yanix", "soda luv", "земфира", "лсп", "ANIKV", "элджей",
-               "Scally Milano", "КУОК", "The limba", "хаски", "Валентин дядька", "Ежемесячные", 'ssshhhiiittt',
-               'билборды', 'электрофорез', 'дайте танк', 'перемотка', 'буерак', 'OST Subway Surfers']
-    for artist in artists:
-        all_grams, words = download_dataset(artist, all_grams, words)
-        with open('single.txt', 'w', encoding='utf-8') as file:
-            file.write(json.dumps(all_grams))
-        with open("words.txt", "wb") as file:
-            pickle.dump(words, file)
+    return all_grams
 
 
 if __name__ == '__main__':
-    choose_artist()
+    model = args.model
+    input_dir = args.input_dir
+
+    texts = []
+    if input_dir is None:
+        print("Закончите ввод текста строкой end")
+        s = ""
+        text = ""
+        while s != "end":
+            s = input()
+            if s != "end":
+                texts += s + "\n"
+        texts.append(text)
+    else:
+        filenames = next(walk(input_dir), (None, None, []))[2]
+        for file in filenames:
+            path = os.path.join(input_dir, file)
+            text = ""
+            with open(path, encoding='utf-8') as file:
+                for line in file:
+                    text += line.strip() + "\n"
+            texts.append(text)
+    all_grams = make_data(texts)
+    with open(model, 'w', encoding='utf-8') as file:
+        file.write(json.dumps(all_grams))

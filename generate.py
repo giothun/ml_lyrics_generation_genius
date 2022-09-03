@@ -1,6 +1,16 @@
+import argparse
 import json
-import pickle
+
 import numpy as np
+
+parser = argparse.ArgumentParser(description='Get text from model')
+parser.add_argument('-m', '--model', type=str, help='путь к файлу, из которого загружается модель.',
+                    default="all_grams.txt")
+parser.add_argument('-pre', '--prefix', nargs='+',
+                    help='необязательный аргумент. Начало предложения (одно или несколько слов). Если не указано, '
+                         'выбираем начальное слово случайно из всех слов.', default=None)
+parser.add_argument('-len', '--length', type=int, help='длина генерируемой последовательности.', default=20)
+args = parser.parse_args()
 
 
 def separate_grams(all_grams):
@@ -18,12 +28,14 @@ def separate_grams(all_grams):
     return one_grams, two_grams, three_grams
 
 
-def make_text(all_grams, words, length, prefix=None):
+def make_text(all_grams, length, prefix=None):
     one_grams, two_grams, three_grams = separate_grams(all_grams)
+    words = one_grams.keys()
+    words = list(words)
     if prefix is None or prefix == "":
         arr = np.random.choice(words, 1)
     else:
-        arr = prefix.split(' ')
+        arr = prefix
     arr = list(arr)
     for j in range(length):
         cnt_zeros = 0
@@ -45,11 +57,10 @@ def make_text(all_grams, words, length, prefix=None):
 
 
 if __name__ == '__main__':
-    with open('single.txt', 'r', encoding='utf-8') as file:
+    model = args.model
+    with open(model, 'r', encoding='utf-8') as file:
         all_grams = json.load(file)
-    with open("words.txt", "rb") as file:
-        words = pickle.load(file)
 
-    length = int(input("Введите длину генерируемой последовательности: "))
-    prefix = input("Введите префикс (префикс может быть пустой строкой): ")
-    make_text(all_grams, words, length, prefix)
+    length = args.length
+    prefix = args.prefix
+    make_text(all_grams, length, prefix)
