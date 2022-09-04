@@ -10,6 +10,7 @@ def make_data(all_grams):
         lyrics = [song['lyrics'] for song in aux['songs']]
         pos = 0
         for lyric in lyrics:
+            # чищу текста
             lyric = lyric[lyric.find('\n'):]
             lyric = lyric.replace('\n ', '\n')
             lyric = lyric.replace('\n\n', '\n')
@@ -39,44 +40,40 @@ def make_data(all_grams):
             lyric = re.sub(' +', ' ', lyric)
             arr = lyric.split(' ')
             for i in range(len(arr)):
-                if i - 2 >= 0:
-                    tmp = arr[i - 2] + " " + arr[i - 1] + " " + arr[i]
-                    if tmp in all_grams:
-                        all_grams[tmp] += 1
-                    else:
-                        all_grams[tmp] = 1
                 if i - 1 >= 0:
                     tmp = arr[i - 1] + " " + arr[i]
                     if tmp in all_grams:
                         all_grams[tmp] += 1
                     else:
                         all_grams[tmp] = 1
-                if arr[i] in all_grams:
-                    all_grams[arr[i]] += 1
-                else:
-                    all_grams[arr[i]] = 1
+
+                    if arr[i] in all_grams:
+                        all_grams[arr[i]] += 1
+                    else:
+                        all_grams[arr[i]] = 1
+
     return all_grams
 
 
-def download_dataset(artist, all_grams):  # calling the API
+def download_dataset(artist, all_grams):  # вызываю апи
     api = genius.Genius('OtmDtw5-YP0nx3eBs6lXVK23Cn0-gzM_FcodeRol2O-_j58w4JRHd801WF_8lsmS')
-    artist = api.search_artist(artist, get_full_info=False)
-    artist.save_lyrics(filename='artist', overwrite=True, verbose=True)
+    artist = api.search_artist(artist, get_full_info=False, max_songs=2)
+    artist.save_lyrics(filename='artist_test', overwrite=True, verbose=True)
     return make_data(all_grams)
 
 
 def choose_artist():
-    with open('all_grams', 'r', encoding='utf-8') as file:
-        all_grams = json.load(file)
-    artists = ["Слава КПСС", "Pyrokinesis", "Aikko", "Lil krystalll", "oxxxymiron", "ATL", "Og buda", "Loqiemean",
-               "163ONMYNECK", "katanacss", "playingtheangel", "booker", "монеточка", "три дня дождя", "MORGENSHTERN",
-               "NOIZE MC", "Макс корж", "нексюша", "дора", "boulevard depo", "король и шут", "мэйби бэйби",
-               "тима белорусских", "bushido zho", "yanix", "soda luv", "земфира", "лсп", "ANIKV", "элджей",
-               "Scally Milano", "КУОК", "The limba", "хаски", "Валентин дядька", "Ежемесячные", 'ssshhhiiittt',
-               'билборды', 'электрофорез', 'дайте танк', 'перемотка', 'буерак', 'OST Subway Surfers']
-    for artist in artists:
+    # artists = ["Слава КПСС", "Pyrokinesis", "Aikko", "Lil krystalll", "oxxxymiron", "ATL", "Og buda", "Loqiemean",
+    #            "163ONMYNECK", "katanacss", "playingtheangel", "booker", "монеточка", "три дня дождя", "MORGENSHTERN",
+    #            "NOIZE MC", "Макс корж", "нексюша", "дора", "boulevard depo", "король и шут", "мэйби бэйби",
+    #            "тима белорусских", "bushido zho", "yanix", "soda luv", "земфира", "лсп", "ANIKV", "элджей",
+    #            "Scally Milano", "КУОК", "The limba", "хаски", "Валентин дядька", "Ежемесячные", 'ssshhhiiittt',
+    #            'билборды', 'электрофорез', 'дайте танк', 'перемотка', 'буерак', 'OST Subway Surfers']
+    artists_test = ['дора', 'нексюша']
+    all_grams = {}
+    for artist in artists_test:
         all_grams = download_dataset(artist, all_grams)
-        with open('all_grams.txt', 'w', encoding='utf-8') as file:
+        with open('all_grams12.txt', 'w', encoding='utf-8') as file:
             file.write(json.dumps(all_grams))
 
 

@@ -18,6 +18,7 @@ def make_data(texts):
     all_grams = {}
     pos = 0
     for text in texts:
+        # чищу текста
         text = text[text.find('\n'):]
         text = text.replace('\n ', '\n')
         text = text.replace('\n\n', '\n')
@@ -43,26 +44,21 @@ def make_data(texts):
         text = text.replace('\u2005', ' ')
         texts[pos] = text
         pos += 1
+    #считаю сами 2-граммы
     for text in texts:
         text = re.sub(' +', ' ', text)
         arr = text.split(' ')
         for i in range(len(arr)):
-            if i - 2 >= 0:
-                tmp = arr[i - 2] + " " + arr[i - 1] + " " + arr[i]
-                if tmp in all_grams:
-                    all_grams[tmp] += 1
-                else:
-                    all_grams[tmp] = 1
             if i - 1 >= 0:
                 tmp = arr[i - 1] + " " + arr[i]
                 if tmp in all_grams:
                     all_grams[tmp] += 1
                 else:
                     all_grams[tmp] = 1
-            if arr[i] in all_grams:
-                all_grams[arr[i]] += 1
-            else:
-                all_grams[arr[i]] = 1
+                if arr[i] in all_grams:
+                    all_grams[arr[i]] += 1
+                else:
+                    all_grams[arr[i]] = 1
 
     return all_grams
 
