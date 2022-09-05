@@ -7,9 +7,9 @@ from os import walk
 parser = argparse.ArgumentParser(description='Train model')
 parser.add_argument('-indir', '--input-dir',
                     help='путь к директории, в которой лежит коллекция документов для обучения модели.',
-                    default=None)
+                    default="data")
 parser.add_argument('-m', '--model', type=str, help='путь к файлу, в который сохраняется модель.',
-                    default="all_grams2.txt")
+                    default="all_grams.txt")
 
 args = parser.parse_args()
 
@@ -44,17 +44,22 @@ def make_data(texts):
         text = text.replace('\u2005', ' ')
         texts[pos] = text
         pos += 1
-    #считаю сами 2-граммы
+    # считаю сами 2 и 3 граммы
     for text in texts:
         text = re.sub(' +', ' ', text)
         arr = text.split(' ')
         for i in range(len(arr)):
-            if i - 1 >= 0:
-                tmp = arr[i - 1] + " " + arr[i]
-                if tmp in all_grams:
-                    all_grams[tmp] += 1
+            if i - 2 >= 0:
+                three_gram = arr[i - 2] + " " + arr[i - 1] + " " + arr[i]
+                if three_gram in all_grams:
+                    all_grams[three_gram] += 1
                 else:
-                    all_grams[tmp] = 1
+                    all_grams[three_gram] = 1
+                two_grams = arr[i - 1] + " " + arr[i]
+                if two_grams in all_grams:
+                    all_grams[two_grams] += 1
+                else:
+                    all_grams[two_grams] = 1
                 if arr[i] in all_grams:
                     all_grams[arr[i]] += 1
                 else:
