@@ -5,11 +5,10 @@ import re
 import numpy as np
 
 parser = argparse.ArgumentParser(description='Get text from model')
-parser.add_argument('-m', '--model', type=str, help='путь к файлу, из которого загружается модель.',
+parser.add_argument('-m', '--model', type=str, help='path to the file from which the model is loaded.',
                     default="all_grams.txt")
 parser.add_argument('-pre', '--prefix', nargs='+',
-                    help='необязательный аргумент. Начало предложения (одно или несколько слов). Если не указано, '
-                         'выбираем начальное слово случайно из всех слов.',
+                    help='optional argument. The beginning of the sentence (one or more words). If not specified, select the start word randomly from all words.',
                     default=None)
 parser.add_argument('-len', '--length', type=int, help='длина генерируемой последовательности.', default=20)
 args = parser.parse_args()
@@ -46,9 +45,9 @@ def make_text(all_grams, length, prefix=None):
     arr = []
     if prefix is None or prefix == "":
         arr = np.random.choice(list(two_grams.keys()), 1)[0].split(' ')
-    # если префикс длины 1, то дополним до 2 граммы для дальнейшей корректной работы
+    # if the prefix is of length 1, we will augment to 2 grams for further correct operation
     else:
-        #  косметические операции с префиксом))
+        # edits with a prefix
         prefix = clear_prefix(prefix)
         arr = prefix.split(" ")
         if len(arr) == 1:
@@ -58,11 +57,11 @@ def make_text(all_grams, length, prefix=None):
                     p_arr.append(two_grams[arr[-1] + " " + word] / one_grams[arr[-1]])
                 else:
                     p_arr.append(0)
-            # если нет такой 2-граммы,у которой начало префикс, то добавляем случайную 2 грамму
+            # If there is no 2-gram that has a prefix at the beginning, we add a random 2-gram.
             if sum(p_arr) == 0:
                 arr += np.random.choice(list(two_grams.keys()), 1)[0].split(' ')
             else:
-                # нормализую
+                # normalize
                 p_arr /= np.sum(p_arr)
                 arr.append(np.random.choice(words, 1, p=p_arr)[0])
 
@@ -75,11 +74,11 @@ def make_text(all_grams, length, prefix=None):
             else:
                 p_arr.append(0)
 
-        # может быть не найдено продолжение, тогда добавляем случайную 2 грамму
+        # there may be no continuation found, then we add a random 2 grams
         if np.sum(p_arr) == 0:
             arr += np.random.choice(list(two_grams.keys()), 1)[0].split(' ')
         else:
-            # пару раз была ошибка из-за точности вычислений, поэтому нормализую
+            # normalize
             p_arr /= np.sum(p_arr)
             arr.append(np.random.choice(words, 1, p=p_arr)[0])
     print(" ".join(arr))
