@@ -20,7 +20,7 @@ def make_data():
             f.write(lyric)
 
 
-def download_dataset(artist):  # вызываю апи
+def download_dataset(artist):  # api call
     api = genius.Genius('OtmDtw5-YP0nx3eBs6lXVK23Cn0-gzM_FcodeRol2O-_j58w4JRHd801WF_8lsmS')
     artist = api.search_artist(artist, get_full_info=False)
     artist.save_lyrics(filename='artist', overwrite=True, verbose=True)
@@ -39,6 +39,6 @@ def choose_artist():
         make_data()
 
 
-# скрипт был использован для выкачки текстов песен произвольных артистов указанных в массиве artists  с genius.com
+# script was used to download lyrics of arbitrary artists specified in the artists array from genius.com
 if __name__ == '__main__':
     choose_artist()
