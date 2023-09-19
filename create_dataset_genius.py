@@ -15,7 +15,7 @@ def make_data():
 
         file = aux['name'] + " " + title
         file = re.sub(r'[^\w\s]+|[\d]+', r'', file).strip()
-        file = "data/"+file+".txt"
+        file = "data/" + file + ".txt"
         with open(file, mode='w+', encoding='utf-8') as f:
             f.write(lyric)
 

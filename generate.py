@@ -8,7 +8,8 @@ parser = argparse.ArgumentParser(description='Get text from model')
 parser.add_argument('-m', '--model', type=str, help='path to the file from which the model is loaded.',
                     default="all_grams.txt")
 parser.add_argument('-pre', '--prefix', nargs='+',
-                    help='optional argument. The beginning of the sentence (one or more words). If not specified, select the start word randomly from all words.',
+                    help='optional argument. The beginning of the sentence (one or more words). If not specified, '
+                         'select the start word randomly from all words.',
                     default=None)
 parser.add_argument('-len', '--length', type=int, help='length of the generated sequence.', default=20)
 args = parser.parse_args()
