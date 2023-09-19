@@ -6,9 +6,9 @@ from os import walk
 
 parser = argparse.ArgumentParser(description='Train model')
 parser.add_argument('-indir', '--input-dir',
-                    help='путь к директории, в которой лежит коллекция документов для обучения модели.',
+                    help='path to directory for train',
                     default="data")
-parser.add_argument('-m', '--model', type=str, help='путь к файлу, в который сохраняется модель.',
+parser.add_argument('-m', '--model', type=str, help='path for save model',
                     default="all_grams.txt")
 
 args = parser.parse_args()
@@ -18,7 +18,7 @@ def make_data(texts):
     all_grams = {}
     pos = 0
     for text in texts:
-        # чищу текста
+        # text clear
         text = text[text.find('\n'):]
         text = text.replace('\n ', '\n')
         text = text.replace('\n\n', '\n')
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
     texts = []
     if input_dir is None:
-        print("Закончите ввод текста строкой end")
+        print("end input by word end")
         s = ""
         text = ""
         while s != "end":
