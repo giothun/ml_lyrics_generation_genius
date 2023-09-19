@@ -44,7 +44,7 @@ def make_data(texts):
         text = text.replace('\u2005', ' ')
         texts[pos] = text
         pos += 1
-    # считаю сами 2 и 3 граммы
+    # 2 and 3 grams calculation
     for text in texts:
         text = re.sub(' +', ' ', text)
         arr = text.split(' ')
