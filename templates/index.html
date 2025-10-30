@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Lyrics Generation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 ML Lyrics Generation</h1>
+            <p class="subtitle">Generate new lyrics using n-gram language models</p>
+        </header>
+
+        <!-- Model Status Section -->
+        <div class="model-status">
+            <h2>📊 Model Status</h2>
+            {% if model_stats %}
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">{{ model_stats.total }}</div>
+                        <div class="stat-label">Total N-grams</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ model_stats.unigrams }}</div>
+                        <div class="stat-label">1-grams</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ model_stats.bigrams }}</div>
+                        <div class="stat-label">2-grams</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ model_stats.trigrams }}</div>
+                        <div class="stat-label">3-grams</div>
+                    </div>
+                </div>
+                <p class="model-info">
+                    {% if current_model == 'all_grams.txt' %}
+                        Using default model: <strong>all_grams.txt</strong>
+                    {% else %}
+                        Using uploaded model: <strong>{{ current_model.split('/')[-1] }}</strong>
+                    {% endif %}
+                </p>
+            {% else %}
+                <div class="alert alert-warning">
+                    ⚠️ No model loaded. Please upload a model or train one using <code>python train.py</code>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Model Management Section -->
+        <div class="model-management">
+            <h2>📁 Model Management</h2>
+            <div class="upload-section">
+                <label for="model-file" class="upload-label">
+                    <span class="upload-icon">📤</span>
+                    Upload Custom Model
+                </label>
+                <input type="file" id="model-file" accept=".txt,.json" style="display: none;">
+                <button id="upload-btn" class="btn btn-secondary">Upload Model</button>
+                
+                {% if default_model_exists and current_model != 'all_grams.txt' %}
+                    <button id="use-default-btn" class="btn btn-secondary">Use Default Model</button>
+                {% endif %}
+            </div>
+            <div id="upload-status" class="status-message"></div>
+        </div>
+
+        <!-- Generation Section -->
+        <div class="generation-section">
+            <h2>✨ Generate Lyrics</h2>
+            <form id="generate-form">
+                <div class="form-group">
+                    <label for="prefix">Starting Words (Optional)</label>
+                    <input type="text" id="prefix" name="prefix" 
+                           placeholder="e.g., я хочу танцевать" 
+                           class="form-control">
+                    <small class="form-help">Leave empty for random start</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="length">Number of Words</label>
+                    <div class="slider-container">
+                        <input type="range" id="length" name="length" 
+                               min="10" max="200" value="20" 
+                               class="slider">
+                        <span id="length-value" class="slider-value">20</span>
+                    </div>
+                </div>
+
+                <!-- Advanced Parameters (collapsible) -->
+                <div class="advanced-section">
+                    <button type="button" id="toggle-advanced" class="btn-toggle">
+                        ⚙️ Advanced Parameters
+                    </button>
+                    <div id="advanced-params" style="display: none;">
+                        <div class="form-group">
+                            <label for="temperature">Temperature (Randomness)</label>
+                            <div class="slider-container">
+                                <input type="range" id="temperature" name="temperature" 
+                                       min="0.5" max="2.0" step="0.1" value="1.0" 
+                                       class="slider">
+                                <span id="temperature-value" class="slider-value">1.0</span>
+                            </div>
+                            <small class="form-help">Lower = more focused, Higher = more random</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Interpolation Weights (Lambda)</label>
+                            <div class="lambda-group">
+                                <div class="lambda-item">
+                                    <label for="lambda3">Trigrams (λ₃)</label>
+                                    <input type="number" id="lambda3" name="lambda3" 
+                                           min="0" max="1" step="0.1" value="0.6" 
+                                           class="lambda-input">
+                                </div>
+                                <div class="lambda-item">
+                                    <label for="lambda2">Bigrams (λ₂)</label>
+                                    <input type="number" id="lambda2" name="lambda2" 
+                                           min="0" max="1" step="0.1" value="0.3" 
+                                           class="lambda-input">
+                                </div>
+                                <div class="lambda-item">
+                                    <label for="lambda1">Unigrams (λ₁)</label>
+                                    <input type="number" id="lambda1" name="lambda1" 
+                                           min="0" max="1" step="0.1" value="0.1" 
+                                           class="lambda-input">
+                                </div>
+                            </div>
+                            <small class="form-help">Weights for combining n-gram probabilities (will be normalized)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="smoothing">Smoothing Parameter</label>
+                            <div class="slider-container">
+                                <input type="range" id="smoothing" name="smoothing" 
+                                       min="0.01" max="1.0" step="0.01" value="0.1" 
+                                       class="slider">
+                                <span id="smoothing-value" class="slider-value">0.1</span>
+                            </div>
+                            <small class="form-help">Add-k smoothing for unseen n-grams</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="use-interpolation" name="use_interpolation" value="true">
+                                Use Interpolation (slower but better quality)
+                            </label>
+                            <small class="form-help">Default: Fast backoff method. Enable for higher quality (slower).</small>
+                        </div>
+
+                        <button type="button" id="reset-params" class="btn btn-secondary">
+                            Reset to Defaults
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="generate-btn">
+                    <span class="btn-text">Generate Lyrics</span>
+                    <span class="btn-loader" style="display: none;">⏳</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="results-section" style="display: none;">
+            <h2>📝 Generated Lyrics</h2>
+            <div id="generated-text" class="generated-text"></div>
+            <div class="result-actions">
+                <button id="copy-btn" class="btn btn-secondary">📋 Copy to Clipboard</button>
+                <button id="download-btn" class="btn btn-secondary">💾 Download as Text</button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>
+                Built with Python + Flask • 
+                <a href="https://github.com" target="_blank">View on GitHub</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Update slider value displays
+        const lengthSlider = document.getElementById('length');
+        const lengthValue = document.getElementById('length-value');
+        const temperatureSlider = document.getElementById('temperature');
+        const temperatureValue = document.getElementById('temperature-value');
+        const smoothingSlider = document.getElementById('smoothing');
+        const smoothingValue = document.getElementById('smoothing-value');
+        
+        lengthSlider.addEventListener('input', (e) => {
+            lengthValue.textContent = e.target.value;
+        });
+
+        temperatureSlider.addEventListener('input', (e) => {
+            temperatureValue.textContent = e.target.value;
+        });
+
+        smoothingSlider.addEventListener('input', (e) => {
+            smoothingValue.textContent = e.target.value;
+        });
+
+        // Toggle advanced parameters
+        document.getElementById('toggle-advanced').addEventListener('click', () => {
+            const advancedParams = document.getElementById('advanced-params');
+            const toggleBtn = document.getElementById('toggle-advanced');
+            if (advancedParams.style.display === 'none') {
+                advancedParams.style.display = 'block';
+                toggleBtn.textContent = '⚙️ Hide Advanced Parameters';
+            } else {
+                advancedParams.style.display = 'none';
+                toggleBtn.textContent = '⚙️ Advanced Parameters';
+            }
+        });
+
+        // Reset parameters to defaults
+        document.getElementById('reset-params').addEventListener('click', () => {
+            document.getElementById('temperature').value = 1.0;
+            document.getElementById('temperature-value').textContent = '1.0';
+            document.getElementById('lambda3').value = 0.6;
+            document.getElementById('lambda2').value = 0.3;
+            document.getElementById('lambda1').value = 0.1;
+            document.getElementById('smoothing').value = 0.1;
+            document.getElementById('smoothing-value').textContent = '0.1';
+            document.getElementById('use-interpolation').checked = false;
+        });
+
+        // Handle form submission
+        const generateForm = document.getElementById('generate-form');
+        const generateBtn = document.getElementById('generate-btn');
+        const resultsSection = document.getElementById('results-section');
+        const generatedText = document.getElementById('generated-text');
+
+        generateForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Show loading state
+            generateBtn.querySelector('.btn-text').textContent = 'Generating...';
+            generateBtn.querySelector('.btn-loader').style.display = 'inline';
+            generateBtn.disabled = true;
+
+            const formData = new FormData(generateForm);
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    generatedText.textContent = data.text;
+                    resultsSection.style.display = 'block';
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Error: ' + (data.error || 'Generation failed'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                // Reset button state
+                generateBtn.querySelector('.btn-text').textContent = 'Generate Lyrics';
+                generateBtn.querySelector('.btn-loader').style.display = 'none';
+                generateBtn.disabled = false;
+            }
+        });
+
+        // Handle model upload
+        const modelFileInput = document.getElementById('model-file');
+        const uploadBtn = document.getElementById('upload-btn');
+        const uploadStatus = document.getElementById('upload-status');
+
+        document.querySelector('.upload-label').addEventListener('click', () => {
+            modelFileInput.click();
+        });
+
+        uploadBtn.addEventListener('click', async () => {
+            const file = modelFileInput.files[0];
+            if (!file) {
+                alert('Please select a file first');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('model_file', file);
+
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Uploading...';
+
+            try {
+                const response = await fetch('/upload_model', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    uploadStatus.innerHTML = `<div class="alert alert-success">✓ ${data.message}</div>`;
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    uploadStatus.innerHTML = `<div class="alert alert-error">✗ ${data.error}</div>`;
+                }
+            } catch (error) {
+                uploadStatus.innerHTML = `<div class="alert alert-error">✗ ${error.message}</div>`;
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'Upload Model';
+            }
+        });
+
+        // Use default model
+        const useDefaultBtn = document.getElementById('use-default-btn');
+        if (useDefaultBtn) {
+            useDefaultBtn.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/use_default_model', {
+                        method: 'POST'
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        uploadStatus.innerHTML = `<div class="alert alert-success">✓ ${data.message}</div>`;
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        uploadStatus.innerHTML = `<div class="alert alert-error">✗ ${data.error}</div>`;
+                    }
+                } catch (error) {
+                    uploadStatus.innerHTML = `<div class="alert alert-error">✗ ${error.message}</div>`;
+                }
+            });
+        }
+
+        // Copy to clipboard
+        document.getElementById('copy-btn').addEventListener('click', () => {
+            const text = generatedText.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        });
+
+        // Download as text
+        document.getElementById('download-btn').addEventListener('click', () => {
+            const text = generatedText.textContent;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'generated_lyrics.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Update file name display
+        modelFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                document.querySelector('.upload-label').textContent = e.target.files[0].name;
+            }
+        });
+    </script>
+</body>
+</html>
+

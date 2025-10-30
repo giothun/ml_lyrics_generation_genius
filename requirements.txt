@@ -1,0 +1,23 @@
+# Lyrics Generation Dependencies
+
+# Genius API client for downloading lyrics (legacy support)
+lyricsgenius>=3.0.1
+
+# Async HTTP client for concurrent downloads
+aiohttp>=3.8.0
+
+# Async file I/O operations
+aiofiles>=23.0.0
+
+# Numerical computing for probability calculations
+numpy>=1.21.0
+
+# Web framework for the web interface
+Flask>=2.3.0
+
+# Secure filename handling (included with Flask, but explicit for clarity)
+Werkzeug>=2.3.0
+
+# HTML/XML parsing for lyrics extraction
+beautifulsoup4>=4.12.0
+
