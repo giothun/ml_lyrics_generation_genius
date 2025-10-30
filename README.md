@@ -239,13 +239,7 @@ Use 1-gram model (random word from corpus)
 
 This ensures coherent text generation even when encountering unseen contexts.
 
-## Performance Optimizations
 
-The implementation includes several optimizations:
-
-- **Efficient lookup**: Context maps `(w₁,w₂) → [(w₃, count)]` instead of iterating all words
-- **Complexity**: O(k) per word instead of O(|V|) where k is branching factor (~10-50), |V| is vocabulary size (~10,000+)
-- **Speed improvement**: ~100-1000x faster than naive implementation
 
 ## Examples
 
