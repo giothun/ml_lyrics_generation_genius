@@ -15,16 +15,8 @@ There are two ways to use this project:
 
 ## 🌐 Web Interface
 
-The easiest way to generate lyrics is through the web interface.
+The easiest way to generate lyrics is through the web interface: https://mllyricsgenerationgenius-production.up.railway.app/
 
-### Starting the Web App
-
-```bash
-# Start the web server (pre-trained model included!)
-python web_app.py
-```
-
-Then open your browser and navigate to: **http://localhost:5000**
 
 ## 💻 Command Line Usage
 
