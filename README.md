@@ -1,8 +1,14 @@
-# ML Lyrics Generation (Genius) 
+# ML Lyrics Generation (Genius)
+
+[![Railway Deploy](https://img.shields.io/badge/Railway-Deployed-success?logo=railway&logoColor=white)](https://mllyricsgenerationgenius-production.up.railway.app/)
+[![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-3.1-black?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![GitHub Stars](https://img.shields.io/github/stars/giothun/ml_lyrics_generation_genius?style=social)](https://github.com/giothun/ml_lyrics_generation_genius)
+[![License](https://img.shields.io/badge/License-Educational-green)](https://github.com/giothun/ml_lyrics_generation_genius)
 
 A lyrics generation project using n-gram language models trained on artist lyrics from [Genius.com](https://genius.com). Generate new song lyrics in the style of your favorite Russian hip-hop and rap artists.
 
-Web access: https://mllyricsgenerationgenius-production.up.railway.app/
+🌐 **Live Demo**: [https://mllyricsgenerationgenius-production.up.railway.app/](https://mllyricsgenerationgenius-production.up.railway.app/)
 
 
 ## Usage
