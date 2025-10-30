@@ -4,17 +4,6 @@ A lyrics generation project using n-gram language models trained on artist lyric
 
 Web access: https://mllyricsgenerationgenius-production.up.railway.app/
 
-## Features
-
-- 🎁 **Pre-trained model included** - Ready to use with 4,700+ Russian lyrics (1.5M n-grams)
-- 📥 Download lyrics from Genius.com API for multiple artists
-- 🧠 Train n-gram language models (configurable 1-3 grams)
-- 🎵 Generate new lyrics with optional seed phrases
-- 🔄 Intelligent backoff strategy (3-gram → 2-gram → 1-gram)
-- 🚀 Optimized generation using efficient lookup structures
-- 💾 Save generated lyrics to files
-- 🌐 **Web interface** for easy lyrics generation in your browser
-- 📤 Upload custom trained models through the web UI
 
 ## Pre-trained Model Included 🎁
 
@@ -79,25 +68,6 @@ python web_app.py
 ```
 
 Then open your browser and navigate to: **http://localhost:5000**
-
-### Web Features
-
-- ✨ **Easy Generation**: Simple form to generate lyrics with customizable length and prefix
-- 📊 **Model Statistics**: See n-gram counts and vocabulary size
-- 📤 **Upload Models**: Upload custom trained models
-- 💾 **Download Results**: Save generated lyrics as text files
-- 📋 **Copy to Clipboard**: One-click copy functionality
-- 🎨 **Modern UI**: Beautiful, responsive design that works on all devices
-
-### Web Interface Screenshots
-
-The web interface provides:
-1. Model status dashboard showing n-gram statistics
-2. Model upload/management section
-3. Generation form with prefix and length controls
-4. Results display with copy and download options
-
----
 
 ## 💻 Command Line Usage
 
@@ -191,30 +161,6 @@ GENERATED TEXT:
 ==================================================
 ```
 
-## Project Structure
-
-```
-ml_lyrics_generation_genius/
-├── create_dataset_genius.py  # Download lyrics from Genius
-├── train.py                  # Train n-gram model
-├── generate.py               # Generate new lyrics (CLI)
-├── web_app.py                # Flask web application
-├── requirements.txt          # Python dependencies
-├── README.md                 # This file
-├── .gitignore                # Git ignore rules
-├── Dockerfile                # Docker configuration
-├── docker-compose.yml        # Docker Compose configuration
-├── railway.json              # Railway deployment config
-├── DEPLOYMENT.md             # Deployment guide
-├── templates/                # HTML templates for web app
-│   └── index.html           # Main web interface
-├── static/                   # Static files (CSS, JS)
-│   └── style.css            # Web app styling
-├── uploads/                  # User-uploaded models (created automatically)
-├── data/                     # Downloaded lyrics (created automatically)
-└── all_grams.txt            # Trained model (pre-trained, ready to use!)
-```
-
 ## How It Works
 
 ### N-gram Language Model
@@ -264,90 +210,6 @@ mkdir my_lyrics
 python train.py -indir my_lyrics -m my_model.txt
 python generate.py -m my_model.txt -l 50
 ```
-
-## Included Artists
-
-The default dataset includes lyrics from popular Russian artists:
-- Слава КПСС, Pyrokinesis, Aikko, Lil krystalll, oxxxymiron
-- ATL, Og buda, Loqiemean, katanacss, playingtheangel
-- монеточка, три дня дождя, MORGENSHTERN, NOIZE MC
-- And many more...
-
-See `create_dataset_genius.py` for the full list.
-
-## Limitations
-
-- **Quality**: N-gram models don't understand grammar or meaning, just statistical patterns
-- **Coherence**: Generated text may lose coherence over longer sequences
-- **Rhyme**: No rhyme scheme enforcement (future improvement)
-- **Context**: No long-range dependencies (only looks back 2 words)
-
-## Future Improvements
-
-- [x] ~~Web interface (Flask)~~ ✅ **Implemented!**
-- [ ] Add temperature parameter for controlling randomness
-- [ ] Implement Kneser-Ney smoothing for better probability estimates
-- [ ] Add rhyme scheme detection and enforcement
-- [ ] Support for 4-grams and 5-grams
-- [ ] Use pickle for faster model loading
-- [ ] Perplexity calculation for model evaluation
-- [ ] Verse structure preservation
-- [ ] API endpoint for programmatic access
-- [ ] Model versioning and comparison
-
-## Quick Start Guide
-
-### Option 1: Web Interface (Recommended)
-```bash
-# 1. Install dependencies
-pip install -r requirements.txt
-
-# 2. Start the web app (pre-trained model included!)
-python web_app.py
-
-# 3. Open http://localhost:5000 in your browser
-```
-
-**That's it!** The repository includes a pre-trained model (`all_grams.txt`) trained on 4,700+ Russian song lyrics, so you can start generating immediately.
-
-### Option 2: Command Line
-```bash
-# 1. Install dependencies
-pip install -r requirements.txt
-
-# 2. Generate lyrics with pre-trained model
-python generate.py -p "я хочу" -l 30
-
-# Optional: Train your own custom model
-# python train.py -indir your_data_folder
-```
-
-## Troubleshooting
-
-### Web App Issues
-
-**"No model loaded"**
-- Train a model first: `python train.py`
-- Or upload a pre-trained model through the web interface
-
-**Web app won't start**
-- Make sure Flask is installed: `pip install Flask`
-- Check if port 5000 is already in use
-- Try a different port: Edit `web_app.py` and change `port=5000`
-
-### Command Line Issues
-
-**"Error: GENIUS_API_KEY environment variable not set"**
-Set your API key: `export GENIUS_API_KEY='your_key'`
-
-**"Error: Directory 'data' does not exist"**
-Run `create_dataset_genius.py` first to download lyrics
-
-**"Warning: 'word' not in vocabulary"**
-The prefix word wasn't seen during training. The generator will skip it and use available words.
-
-**Model file is very large**
-This is normal. A model trained on 150+ songs can be 10-50 MB. Consider using pickle instead of JSON for better compression.
 
 ## License
 
