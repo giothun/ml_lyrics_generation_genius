@@ -5,49 +5,6 @@ A lyrics generation project using n-gram language models trained on artist lyric
 Web access: https://mllyricsgenerationgenius-production.up.railway.app/
 
 
-## Pre-trained Model Included 🎁
-
-This repository comes with a **pre-trained model** (`all_grams.txt`) ready to use:
-
-- **Dataset**: 4,730 Russian song lyrics
-- **Artists**: 40+ popular Russian hip-hop and rap artists
-- **Vocabulary**: 104,522 unique words
-- **N-grams**: 1,490,644 total (1-grams, 2-grams, 3-grams)
-- **File Size**: ~46 MB
-
-**You can start generating lyrics immediately without training!**
-
-Advanced users can train custom models on their own data (see Training section below).
-
-## Prerequisites
-
-- Python 3.7+
-- Genius API key (only needed if you want to download new lyrics)
-
-## Installation
-
-1. Clone this repository:
-```bash
-git clone https://github.com/yourusername/ml_lyrics_generation_genius.git
-cd ml_lyrics_generation_genius
-```
-
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-3. Set up your Genius API key:
-```bash
-export GENIUS_API_KEY='your_api_key_here'
-```
-
-Or add it to your `.bashrc` or `.zshrc` for persistence:
-```bash
-echo "export GENIUS_API_KEY='your_api_key_here'" >> ~/.zshrc
-source ~/.zshrc
-```
-
 ## Usage
 
 There are two ways to use this project:
@@ -187,29 +144,17 @@ Use 1-gram model (random word from corpus)
 
 This ensures coherent text generation even when encountering unseen contexts.
 
+## Pre-trained Model Included 🎁
 
+This repository comes with a **pre-trained model** (`all_grams.txt`) ready to use:
 
-## Examples
+- **Dataset**: 4,730 Russian song lyrics
+- **Artists**: 40+ popular Russian hip-hop and rap artists
+- **Vocabulary**: 104,522 unique words
+- **N-grams**: 1,490,644 total (1-grams, 2-grams, 3-grams)
+- **File Size**: ~46 MB
 
-### Example 1: Generate with prefix
-```bash
-python generate.py -p я стоял на краю -l 25
-```
-Output: *"я стоял на краю пропасти и смотрел вниз где бушевал океан мыслей..."*
-
-### Example 2: Longer generation
-```bash
-python generate.py -l 100 -o my_song.txt
-```
-Generates 100 words and saves to `my_song.txt`
-
-### Example 3: Train on custom data
-```bash
-mkdir my_lyrics
-# Add your .txt files to my_lyrics/
-python train.py -indir my_lyrics -m my_model.txt
-python generate.py -m my_model.txt -l 50
-```
+**You can start generating lyrics immediately without training!**
 
 ## License
 
