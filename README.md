@@ -2,6 +2,8 @@
 
 A lyrics generation project using n-gram language models trained on artist lyrics from [Genius.com](https://genius.com). Generate new song lyrics in the style of your favorite Russian hip-hop and rap artists.
 
+Web access: https://mllyricsgenerationgenius-production.up.railway.app/
+
 ## Features
 
 - 🎁 **Pre-trained model included** - Ready to use with 4,700+ Russian lyrics (1.5M n-grams)
